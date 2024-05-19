@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Build With AI</title>
+    <link rel="stylesheet" type="text/css" href="/styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/axios@1.6.7/dist/axios.min.js"></script>
+    <script src="https://unpkg.com/showdown/dist/showdown.min.js"></script>
+  </head>
+  <body v-scope>
+    <div class="container mx-auto pt-3">
+      <div class="mb-10 mt-10">
+        <form id="search-form" @submit.prevent="submitQuery">
+          <input
+            class="w-full rounded-md border border-gray-200 bg-gray-100 p-2"
+            placeholder="Ask something....."
+            v-model="query"
+          />
+        </form>
+      </div>
+      <div style="text-align: center;" v-if="loading">
+        <img src="/loading.gif" style="margin-left:auto; margin-right:auto; height: 100px;"/>
+      </div>
+      <div id="result-area" v-if="generativeResult !== false && !loading">
+        <h1 class="mt-3 text-xl font-bold text-gray-700">Sources</h1>
+        <div class="grid grid-cols-5 gap-2">
+          <div
+            v-for="ref of searchReference"
+            class="mb-3 mt-3 rounded-md bg-gray-100 p-3 text-xs text-gray-800"
+          >
+            <a :href="ref.link" class="text-sx" target="_blank">{{ref.tilte}}</a><br>
+            <img :src="ref.favicon" class="inline w-3 mr-1"/><span class="inline text-sx font-bold">{{ref.source}}</span>
+          </div>
+        </div>
+        <hr />
+        <h1 class="mt-3 text-xl font-bold text-gray-700">Answer</h1>
+        <p class="mb-3 rounded-md bg-gray-100 p-2 text-sm text-gray-800" v-html="generativeResult">
+        </p>
+        <hr />
+        <h1 class="mb-2 mt-3 text-xl font-bold text-gray-700">
+          Related Question
+        </h1>
+        <ul class="text-sm text-gray-700">
+          <li class="my-2 rounded-md bg-gray-100 py-1 px-2" v-for="question of relatedQuestions">
+            {{question}}
+          </li>
+        </ul>
+      </div>
+    </div>
+  </body>
+  <script type="module">
+    import { createApp } from 'https://unpkg.com/petite-vue?module'
+    const converter = new showdown.Converter()
+    createApp({
+        query: '',
+        generativeResult: false,
+        loading: false,
+        relatedQuestions: [],
+        searchReference: [],
+        async submitQuery () {
+            this.loading = true
+            const {data} = await axios.get(`/api/searchProcess?q=${this.query}`)
+            this.loading = false
+            console.log(data)
+            this.generativeResult = converter.makeHtml(data.generativeResult)
+            this.relatedQuestions = data.relatedQuestions.questions
+            this.searchReference = data.searchReference
+        }
+    }).mount()
+  </script>
+</html>
