@@ -2,8 +2,8 @@ const axios = require('axios')
 const { GoogleGenerativeAI } = require("@google/generative-ai")
 const extractJson = require('extract-json-from-string')
 
-const apiKey = 'c5873209cb507a64d7ab6cc50dd532097c9b72b1efabf36afd341a352883fad6'
-const geminiKey = 'AIzaSyDWm6FHiiI05g_Z2lFFVdBRfqooTueQGQQ'
+const apiKey = ''
+const geminiKey = ''
 
 const askGemini = async (prompt) => {
     const genAI = new GoogleGenerativeAI(geminiKey);
